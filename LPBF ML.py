@@ -120,6 +120,46 @@ r2score = r2_score(y_test, y_pred)
 print("R2 Score:", r2score)
 print("-----------------------------")
 
+
+# PREDICT NEW PARAMETERS
+
+# FIXED PARAMETERS
+print("Hatch Spacing(µm): 100")
+print("Layer Thickness(µm): 30")
+
+# PREDICTION
+while True:
+
+    print("Chooese Laser Power between 10W and 500W")
+    new_laser_power = float(input("New Laser Power(W): "))
+
+    if 10 <= new_laser_power <=500:
+        break
+
+    print("Laser Power must be between 10W and 500W")
+
+print("Laser Power(W):", new_laser_power)
+
+while True:
+
+    print("Choose Scan Speed between 0.1m/s and 3m/s")
+    new_scan_speed = float(input("New Scan Speed(m/s): "))
+
+    if 0.1 <= new_scan_speed <= 3:
+        break
+
+    print("Scan Speed must be between 0.1m/s and 3m/s")
+
+print("Scan Speed(m/s):", new_scan_speed)
+print("-----------------------------")
+
+new_parameters = [[new_laser_power, new_scan_speed]]
+
+new_y_pred, new_y_std = pipe.predict(new_parameters, return_std = True)
+print("Predicted Density(%):", new_y_pred)
+print("Uncertainity(%): ±", new_y_std)
+print("-----------------------------")
+
 # VISULIZATION
 
 # INTERPOLATION
