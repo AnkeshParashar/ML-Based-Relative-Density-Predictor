@@ -4,6 +4,12 @@ import matplotlib.pyplot as plt
 
 from scipy.interpolate import griddata
 
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
+
 # DATA SET
 
 data_AlSi10Mg = {
@@ -42,7 +48,24 @@ data_AlSi10Mg = {
 # Material 1: AlSi10Mg
 # ------------------------------------------
 
+print("AlSi10Mg")
 df_AlSi10Mg = pd.DataFrame(data_AlSi10Mg)
+print(df_AlSi10Mg)
+print("-----------------------------")
+
+# INPUT(X) and OUTPUT(y)
+
+X = df_AlSi10Mg[["Laser Power(W)", "Scan Speed(m/s)"]].values
+y = df_AlSi10Mg["Relative Density(%)"].values
+
+# PIPELINE FORMATION --> Scaling of Input(X) and Defining Model
+
+kernel = C(1.0, (1e-3, 1e3)) * RBF(length_scale = 1.0)
+
+pipe = make_pipeline(
+    StandardScaler(),
+    GaussianProcessRegressor(kernel = kernel, n_restarts_optimizer=10, normalize_y = True, alpha = 0.1)
+)
 
 # VISULIZATION
 
