@@ -407,8 +407,8 @@ if material == 2:
     visual.scatter(x, y, z, color = "black", s = 10)
     visual.contour(new_laser, new_scan, new_rel_density, levels = np.arange(92, 100, 0.4), zdir = "z", offset = 90, cmap = "jet")
 
-    visual.set_xlim(150, 450)
-    visual.set_ylim(0.5, 1.5)
+    visual.set_xlim(175, 450)
+    visual.set_ylim(0.65, 1.3)
     visual.set_title("Relationship between Laser_Power, Scan_Speed, Relative_Density", fontsize = 15)
     visual.set_xlabel("Laser Power(W)")
     visual.set_ylabel("Scan Speed(m/s)")

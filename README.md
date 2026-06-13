@@ -108,15 +108,34 @@ python main.py
 Example Input:
 
 ```text
+for AlSi10Mg:
+New Laser Power(W): 255
+New Scan Speed(m/s): 2.55
+
+for Ti6Al4V:
+New Laser Power(W): 175
+New Scan Speed(m/s): 1.25
+
+for IN718:
 New Laser Power(W): 250
 New Scan Speed(m/s): 1.5
+
 ```
 
 Example Output:
 
 ```text
-Predicted Density(%): 98.42
-Uncertainty(%): ±0.56
+for AlSi10Mg:
+Predicted Density(%): 98.67
+Uncertainty(%): ±0.36
+
+for Ti6Al4V:
+Predicted Density(%): 96.65
+Uncertainty(%): ±0.27
+
+for IN718:
+Predicted Density(%): 99.23
+Uncertainty(%): ±0.46
 ```
 
 ---
