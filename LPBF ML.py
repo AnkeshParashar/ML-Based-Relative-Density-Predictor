@@ -11,6 +11,8 @@ from sklearn.model_selection import KFold, cross_val_score, train_test_split
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 
+from sklearn.metrics import root_mean_squared_error, r2_score
+
 # DATA SET
 
 data_AlSi10Mg = {
@@ -108,6 +110,14 @@ for i in range(len(y_test)):
     print("Actual Density(%):", y_test[i])
     print("Predicted Density(%):", y_pred[i])
     print("Uncertainity(%): ±", y_std[i])
+print("-----------------------------")
+
+# EVALUATION of MODEL (SCORES)
+
+rootmean_squared_error = root_mean_squared_error(y_test, y_pred)
+print("Root Mean Squared Error:", rootmean_squared_error)
+r2score = r2_score(y_test, y_pred)
+print("R2 Score:", r2score)
 print("-----------------------------")
 
 # VISULIZATION
