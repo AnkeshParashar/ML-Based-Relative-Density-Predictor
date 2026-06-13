@@ -201,6 +201,30 @@ plt.xlabel("Laser Power (W)")
 plt.ylabel("Scan Speed (m/s)")
 plt.title("Relative Density Contour Plot")
 plt.colorbar(contours, label="Relative Density (%)")
-
 plt.grid(True)
+
+# COMPARISION BETWEEN ACTUAL v/s PREDICTED DENSITY
+experiment_no = list(range(1, len(y_pred) + 1))
+
+data_for_visualisation = {
+    "Experiment Number": experiment_no,
+    "Actual Density(%)": y_test,
+    "Predicted Density(%)": y_pred
+}
+
+df2 = pd.DataFrame(data_for_visualisation)
+
+plt.figure(figsize = (7.5, 6))
+plt.plot(df2["Experiment Number"], df2["Actual Density(%)"], color = "black", marker = "o", label = "Actual Density(%)")
+plt.plot(df2["Experiment Number"], df2["Predicted Density(%)"], color = "red", marker = "o", linestyle = "--", label = "Predicted Density(%)")
+plt.title("Predicted Density v/s Actual Density(%)")
+plt.xlabel("Experiment Number")
+plt.ylabel("Density(%)")
+plt.legend()
+plt.grid(True)
+
+# REPRESENTATION of NEW PREDICTED DENSITY
+new_exp_no = len(experiment_no) + 1
+plt.scatter(new_exp_no, new_y_pred, color="blue", marker="*", label="New Prediction")
+
 plt.show()
