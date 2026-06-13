@@ -99,6 +99,17 @@ print("Initial Kernel:", gpr.kernel)
 print("Optimized Kernel:", gpr.kernel_)
 print("-----------------------------")
 
+# MODEL PREDICTION
+
+y_pred, y_std = pipe.predict(X_test, return_std = True)
+
+for i in range(len(y_test)):
+    print("Test Case:", i + 1)
+    print("Actual Density(%):", y_test[i])
+    print("Predicted Density(%):", y_pred[i])
+    print("Uncertainity(%): ±", y_std[i])
+print("-----------------------------")
+
 # VISULIZATION
 
 # INTERPOLATION
