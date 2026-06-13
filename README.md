@@ -76,7 +76,7 @@ git clone https://github.com/AnkeshParashar/ML-Based-Relative-Density-Predictor.
 Move to the project folder:
 
 ```bash
-cd your-repository-name
+cd ML-Based-Relative-Density-Predictor
 ```
 
 Install required libraries:
