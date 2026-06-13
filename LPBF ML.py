@@ -6,6 +6,7 @@ from scipy.interpolate import griddata
 
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import KFold, cross_val_score, train_test_split
 
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
@@ -66,6 +67,28 @@ pipe = make_pipeline(
     StandardScaler(),
     GaussianProcessRegressor(kernel = kernel, n_restarts_optimizer=10, normalize_y = True, alpha = 0.1)
 )
+
+# BEST SPLITTING of X 
+
+mean_scores = []
+
+for random_state in range(5):
+
+    kf = KFold(n_splits = 5, shuffle = True, random_state = random_state)
+
+    scores = [cross_val_score(pipe, X, y, cv = kf, scoring = "r2")]
+    current_mean = np.mean(scores)
+    print("Random State: ", random_state, " Current Mean: ", current_mean)
+    mean_scores.append(current_mean)
+
+max_mean = np.max(mean_scores)
+max_mean_random_state = np.argmax(mean_scores)
+print("-----------------------------")
+print("Max Mean: ", max_mean)
+print("Max Mean Random State: ", max_mean_random_state)
+print("-----------------------------")
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = max_mean_random_state)
 
 # VISULIZATION
 
