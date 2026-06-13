@@ -90,6 +90,15 @@ print("-----------------------------")
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = max_mean_random_state)
 
+# TRAINING of MODEL
+
+pipe.fit(X_train, y_train)
+
+gpr = pipe.named_steps["gaussianprocessregressor"]
+print("Initial Kernel:", gpr.kernel)
+print("Optimized Kernel:", gpr.kernel_)
+print("-----------------------------")
+
 # VISULIZATION
 
 # INTERPOLATION
