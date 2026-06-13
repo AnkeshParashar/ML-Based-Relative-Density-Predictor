@@ -257,9 +257,184 @@ if material == 1:
 
     plt.show()
 
+# ------------------------------------------
+# Material 3: IN718
+# ------------------------------------------
+
 if material == 2:
 
     print("Ti6Al4V")
     df_Ti6Al4V = pd.DataFrame(data_Ti6Al4V)
     print(df_Ti6Al4V)
     print("-----------------------------")
+
+    # INPUT(X) and OUTPUT(y)
+
+    X = df_Ti6Al4V[["Laser Power(W)", "Scan Speed(m/s)"]].values
+    y = df_Ti6Al4V["Relative Density(%)"].values
+
+    # PIPELINE FORMATION --> Scaling of Input(X) and Defining Model
+
+    kernel = C(1.0, (1e-3, 1e3)) * RBF(length_scale = 1.0)
+
+    pipe = make_pipeline(
+        StandardScaler(),
+        GaussianProcessRegressor(kernel = kernel, n_restarts_optimizer=10, normalize_y = True, alpha = 0.1)
+    )
+
+    # BEST SPLITTING of X 
+
+    mean_scores = []
+
+    for random_state in range(5):
+
+        kf = KFold(n_splits = 5, shuffle = True, random_state = random_state)
+
+        scores = [cross_val_score(pipe, X, y, cv = kf, scoring = "r2")]
+        current_mean = np.mean(scores)
+        print("Random State: ", random_state, " Current Mean: ", current_mean)
+        mean_scores.append(current_mean)
+
+    max_mean = np.max(mean_scores)
+    max_mean_random_state = np.argmax(mean_scores)
+    print("-----------------------------")
+    print("Max Mean: ", max_mean)
+    print("Max Mean Random State: ", max_mean_random_state)
+    print("-----------------------------")
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = max_mean_random_state)
+
+    # TRAINING of MODEL
+
+    pipe.fit(X_train, y_train)
+
+    gpr = pipe.named_steps["gaussianprocessregressor"]
+    print("Initial Kernel:", gpr.kernel)
+    print("Optimized Kernel:", gpr.kernel_)
+    print("-----------------------------")
+
+    # MODEL PREDICTION
+
+    y_pred, y_std = pipe.predict(X_test, return_std = True)
+
+    for i in range(len(y_test)):
+        print("Test Case:", i + 1)
+        print("Actual Density(%):", y_test[i])
+        print("Predicted Density(%):", y_pred[i])
+        print("Uncertainity(%): ±", y_std[i])
+        print("-----------------------------")
+
+    # EVALUATION of MODEL (SCORES)
+
+    rootmean_squared_error = root_mean_squared_error(y_test, y_pred)
+    print("Root Mean Squared Error:", rootmean_squared_error)
+    r2score = r2_score(y_test, y_pred)
+    print("R2 Score:", r2score)
+    print("-----------------------------")
+
+    # PREDICT NEW PARAMETERS
+
+    # FIXED PARAMETERS
+    print("Hatch Spacing(µm): 110")
+    print("Layer Thickness(µm): 50")
+
+    # PREDICTION
+    while True:
+        print("Chooese Laser Power between 100W and 500W")
+        new_laser_power = float(input("New Laser Power(W): "))
+
+        if 100 <= new_laser_power <=500:
+            break
+
+        print("Laser Power must be between 100W and 500W")
+
+    print("Laser Power(W):", new_laser_power)
+
+    while True:
+        print("Choose Scan Speed between 0.5m/s and 2m/s")
+        new_scan_speed = float(input("New Scan Speed(m/s): "))
+
+        if 0.5 <= new_scan_speed <= 2:
+            break
+
+        print("Scan Speed must be between 0.5m/s and 2m/s")
+
+    print("Scan Speed(m/s):", new_scan_speed)
+    print("-----------------------------")
+
+    new_parameters = [[new_laser_power, new_scan_speed]]
+
+    new_y_pred, new_y_std = pipe.predict(new_parameters, return_std = True)
+    print("Predicted Density(%):", new_y_pred)
+    print("Uncertainity(%): ±", new_y_std)
+    print("-----------------------------")
+
+    # VISULIZATION
+
+    # INTERPOLATION
+    x = df_Ti6Al4V["Laser Power(W)"]
+    y = df_Ti6Al4V["Scan Speed(m/s)"]
+    z = df_Ti6Al4V["Relative Density(%)"]
+
+    laser_i = np.linspace(x.min(), x.max(), 100)
+    scan_i = np.linspace(y.min(), y.max(), 100)
+    new_laser, new_scan = np.meshgrid(laser_i, scan_i)
+
+    new_rel_density = griddata((x, y), z, (new_laser, new_scan), method="cubic")
+
+    # 3D SURFACE
+    fig_3d = plt.figure(figsize=(12, 6))
+    visual = fig_3d.add_subplot(projection="3d")
+
+    surface = visual.plot_surface(new_laser, new_scan, new_rel_density, cmap = "jet", edgecolor = "none")
+
+    visual.scatter(x, y, z, color = "black", s = 10)
+    visual.contour(new_laser, new_scan, new_rel_density, levels = np.arange(92, 100, 0.4), zdir = "z", offset = 90, cmap = "jet")
+
+    visual.set_xlim(150, 450)
+    visual.set_ylim(0.5, 1.5)
+    visual.set_title("Relationship between Laser_Power, Scan_Speed, Relative_Density", fontsize = 15)
+    visual.set_xlabel("Laser Power(W)")
+    visual.set_ylabel("Scan Speed(m/s)")
+    visual.set_zlabel("Relative Density(%)")
+    plt.colorbar(surface, label="Relative Density (%)")
+
+    # CONTOURS
+    fig_countour = plt.figure(figsize=(7.5, 6))
+    contours = plt.contour(new_laser, new_scan, new_rel_density, levels = np.arange(92, 100, 0.4), cmap = "jet")
+
+    plt.clabel(contours, fontsize=10)
+    plt.xlim(150, 400)
+    plt.ylim(0.9, 1.40)
+    plt.xlabel("Laser Power (W)")
+    plt.ylabel("Scan Speed (m/s)")
+    plt.title("Relative Density Contour Plot")
+    plt.colorbar(contours, label="Relative Density (%)")
+
+    plt.grid(True)
+
+    # COMPARISION BETWEEN ACTUAL v/s PREDICTED DENSITY
+    experiment_no = list(range(1, len(y_pred) + 1))
+
+    data_for_visualisation = {
+        "Experiment Number": experiment_no,
+        "Actual Density(%)": y_test,
+        "Predicted Density(%)": y_pred
+    }
+
+    df2 = pd.DataFrame(data_for_visualisation)
+
+    plt.figure(figsize = (7.5, 6))
+    plt.plot(df2["Experiment Number"], df2["Actual Density(%)"], color = "black", marker = "o", label = "Actual Density(%)")
+    plt.plot(df2["Experiment Number"], df2["Predicted Density(%)"], color = "red", marker = "o", linestyle = "--", label = "Predicted Density(%)")
+    plt.title("Predicted Density v/s Actual Density(%)")
+    plt.xlabel("Experiment Number")
+    plt.ylabel("Density(%)")
+    plt.legend()
+    plt.grid(True)
+
+    # REPRESENTATION of NEW PREDICTED DENSITY
+    new_exp_no = len(experiment_no) + 1
+    plt.scatter(new_exp_no, new_y_pred, color="blue", marker="*", label="New Prediction")
+
+    plt.show()
