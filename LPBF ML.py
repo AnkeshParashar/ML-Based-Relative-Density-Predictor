@@ -15,7 +15,6 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.svm import SVR
 
 from sklearn.metrics import root_mean_squared_error, r2_score
-from sklearn.inspection import permutation_importance
 
 # DATA SET
 
@@ -212,7 +211,7 @@ if material == 1:
         # PREDICTION
         while True:
 
-            print("Chooese Laser Power between 10W and 500W")
+            print("\nChooese Laser Power between 10W and 500W")
             new_laser_power = float(input("New Laser Power(W): "))
 
             if 10 <= new_laser_power <=500:
@@ -331,9 +330,9 @@ if material == 1:
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42)
 
-    # ------------------------------------------
-    # MODEL 1: RandomForestRegressor
-    # ------------------------------------------        
+        # ------------------------------------------
+        # MODEL 1: RandomForestRegressor
+        # ------------------------------------------        
 
         # PIPELINE FORMATION --> Scaling of Input(X) and Defining Model
 
@@ -411,9 +410,9 @@ if material == 1:
         print("Predicted Microhardness(HV):", new_y_pred_rf)
         print("-----------------------------")
 
-    # ------------------------------------------
-    # MODEL 2: ANN
-    # ------------------------------------------
+        # ------------------------------------------
+        # MODEL 2: ANN
+        # ------------------------------------------
 
         # PIPELINE FORMATION --> Scaling of Input(X) and Defining Model
 
@@ -502,9 +501,9 @@ if material == 1:
         print("Predicted Microhardness(HV):", new_y_pred_ann)
         print("-----------------------------")
 
-    # ------------------------------------------
-    # MODEL 3: SVM
-    # ------------------------------------------
+        # ------------------------------------------
+        # MODEL 3: SVM
+        # ------------------------------------------
 
         # PIPELINE FORMATION --> Scaling of Input(X) and Defining Model
 
@@ -585,9 +584,9 @@ if material == 1:
         print("Predicted Microhardness(HV):", new_y_pred_svm)
         print("-----------------------------")
 
-    # ------------------------------------------
+    # ----------------------------------------------------------
     # VISUALIZATION: RandomForestRegressor vs ANN vs SVM
-    # ------------------------------------------
+    # ----------------------------------------------------------
 
         # VISUALIZATION: RandomForestRegressor
 
