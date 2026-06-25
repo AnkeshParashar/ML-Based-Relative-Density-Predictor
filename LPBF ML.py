@@ -7,13 +7,15 @@ from scipy.interpolate import griddata
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import KFold, cross_val_score, train_test_split
-from sklearn.inspection import permutation_importance
 
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.neural_network import MLPRegressor
+from sklearn.svm import SVR
+
 from sklearn.metrics import root_mean_squared_error, r2_score
+from sklearn.inspection import permutation_importance
 
 # DATA SET
 
@@ -361,16 +363,6 @@ if material == 1:
         print("R2 Score:", r2score)
         print("-----------------------------")
 
-        # FEATURE IMPORTANCE
-
-        feature_names = ["Laser Power(W)", "Hatch Distance(µm)", "Scan Speed(m/s)"]
-
-        feature_importance = pd.DataFrame({"Feature": feature_names, "Importance": pipe_rf.named_steps["randomforestregressor"].feature_importances_}).sort_values(by="Importance", ascending=False)
-
-        print("Feature Importances:")
-        print(feature_importance)
-        print("-----------------------------")
-
         # PREDICT NEW PARAMETERS
 
         # FIXED PARAMETERS
@@ -423,15 +415,6 @@ if material == 1:
 
         # VISULIZATION
 
-        # FEATURE IMPORTANCE
-        plt.figure(figsize=(8, 6))
-        plt.bar(feature_importance["Feature"], feature_importance["Importance"])
-        plt.xlabel("Features", fontsize=10)
-        plt.ylabel("Importance", fontsize=10)
-        plt.title("Feature Importance - Random Forest", fontsize=14)
-        plt.xticks(rotation=20)
-        plt.grid(axis='y')
-
         # COMPARISION BETWEEN ACTUAL v/s PREDICTED MICROHARDNESS
         experiment_no = list(range(1, len(y_pred) + 1))
 
@@ -464,7 +447,8 @@ if material == 1:
 
         # PIPELINE FORMATION --> Scaling of Input(X) and Defining Model
 
-        pipe_ann = make_pipeline(StandardScaler(),
+        pipe_ann = make_pipeline(
+            StandardScaler(),
             MLPRegressor(
                 hidden_layer_sizes=(64, 32),   # 2 hidden layers
                 activation='relu',
@@ -496,19 +480,6 @@ if material == 1:
         print("Root Mean Squared Error:", rootmean_squared_error)
         r2score = r2_score(y, y_pred)
         print("R2 Score:", r2score)
-        print("-----------------------------")
-
-        # FEATURE IMPORTANCE
-
-        feature_names = ["Laser Power(W)", "Hatch Distance(µm)", "Scan Speed(m/s)"]
-
-        # Permutation importance on test set
-        perm_importance = permutation_importance(pipe_ann, X, y, n_repeats = 30, random_state = 42)
-
-        feature_importance = pd.DataFrame({"Feature": feature_names, "Importance": perm_importance.importances_mean}).sort_values(by="Importance", ascending=False)
-
-        print("Feature Importances (Permutation Importance - ANN):")
-        print(feature_importance)
         print("-----------------------------")
 
         # PREDICT NEW PARAMETERS
@@ -563,15 +534,6 @@ if material == 1:
 
         # VISULIZATION
 
-        # FEATURE IMPORTANCE
-        plt.figure(figsize=(8, 6))
-        plt.bar(feature_importance["Feature"], feature_importance["Importance"])
-        plt.xlabel("Features", fontsize=10)
-        plt.ylabel("Importance", fontsize=10)
-        plt.title("Feature Importance - Random ANN", fontsize=14)
-        plt.xticks(rotation=20)
-        plt.grid(axis='y')
-
         # COMPARISION BETWEEN ACTUAL v/s PREDICTED MICROHARDNESS
         experiment_no = list(range(1, len(y_pred) + 1))
 
@@ -602,7 +564,112 @@ if material == 1:
     # MODEL 3: SVM
     # ------------------------------------------
 
+        # PIPELINE FORMATION --> Scaling of Input(X) and Defining Model
 
+        pipe_svm = make_pipeline(
+            StandardScaler(),
+            SVR(kernel='rbf', C=100, epsilon=1.0, gamma='scale')
+        )
+
+        # TRAINING of MODEL
+
+        pipe_svm.fit(X_train, y_train)
+
+        # MODEL PREDICTION
+
+        y_pred = pipe_svm.predict(X)
+
+        for i in range(len(y)):
+            print("Test Case:", i + 1)
+            print("Actual Microhardness(HV):", y[i])
+            print("Predicted Microhardness(HV):", y_pred[i])
+        print("-----------------------------")
+
+        # EVALUATION of MODEL (SCORES)
+
+        rootmean_squared_error = root_mean_squared_error(y, y_pred)
+        print("Root Mean Squared Error:", rootmean_squared_error)
+        r2score = r2_score(y, y_pred)
+        print("R2 Score:", r2score)
+        print("-----------------------------")
+
+        # PREDICT NEW PARAMETERS
+
+        # FIXED PARAMETERS
+        print("Fixed Parameters: ")
+        print("Layer Thickness(µm): 40")
+
+        # PREDICTION
+        while True:
+
+            print("\nChooese Laser Power between 150W and 400W")
+            new_laser_power = float(input("New Laser Power(W): "))
+
+            if 150 <= new_laser_power <=400:
+                break
+
+            print("Laser Power must be between 150W and 400W")
+
+        print("Laser Power(W):", new_laser_power)
+
+        while True:
+
+            print("Choose Hatch Distance between 50µm and 250µm")
+            new_hatch_distance = float(input("New Hatch Distance(µm): "))
+
+            if 50 <= new_hatch_distance <= 250:
+                break
+
+            print("Hatch distance must be between 50µm and 250µm")
+
+        print("Hatch Distance(µm):", new_hatch_distance)
+
+        while True:
+
+            print("Choose Scan Speed between 0.5m/s and 2.5m/s")
+            new_scan_speed = float(input("New Scan Speed(m/s): "))
+
+            if 0.5 <= new_scan_speed <= 2.5:
+                break
+
+            print("Scan Speed must be between 0.5m/s and 2.5m/s")
+
+        print("Scan Speed(m/s):", new_scan_speed)
+        print("-----------------------------")
+
+        new_parameters = [[new_laser_power, new_hatch_distance, new_scan_speed]]
+
+        new_y_pred = pipe_svm.predict(new_parameters)
+        print("Predicted Microhardness(HV):", new_y_pred)
+        print("-----------------------------")
+
+        # VISULIZATION
+
+        # COMPARISION BETWEEN ACTUAL v/s PREDICTED MICROHARDNESS
+        experiment_no = list(range(1, len(y_pred) + 1))
+
+        data_for_visualisation = {
+            "Experiment Number": experiment_no,
+            "Actual Microhardness(HV)": y,
+            "Predicted Microhardness(HV)": y_pred
+        }
+
+        df2 = pd.DataFrame(data_for_visualisation)
+
+        plt.figure(figsize = (10, 6))
+        plt.plot(df2["Experiment Number"], df2["Actual Microhardness(HV)"], color = "black", marker = "o", label = "Actual Microhardness(HV)")
+        plt.plot(df2["Experiment Number"], df2["Predicted Microhardness(HV)"], color = "green", marker = "o", linestyle = "--", label = "Predicted Microhardness(HV)")
+        plt.title("Predicted Microhardness v/s Actual Microhardness(HV)")
+        plt.xlabel("Experiment Number")
+        plt.ylabel("Microhardness(HV)")
+        plt.legend()
+        plt.grid(True)
+
+        # REPRESENTATION of NEW PREDICTED DENSITY
+        new_exp_no = len(experiment_no) + 1
+        plt.scatter(new_exp_no, new_y_pred, color="blue", marker="*", label="New Prediction")
+
+        plt.show()
 
 # ------------------------------------------
 # Material 2: Ti6Al4V
