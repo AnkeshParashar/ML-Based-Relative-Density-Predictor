@@ -337,9 +337,7 @@ if material == 1:
 
         # PIPELINE FORMATION --> Scaling of Input(X) and Defining Model
 
-        pipe_rf = make_pipeline(
-            RandomForestRegressor(n_estimators=200, max_depth = None, random_state = 42)
-        )
+        pipe_rf = make_pipeline(RandomForestRegressor(n_estimators=200, max_depth = None, random_state = 42))
 
         # TRAINING of MODEL
 
@@ -347,19 +345,19 @@ if material == 1:
 
         # MODEL PREDICTION
 
-        y_pred = pipe_rf.predict(X)
+        y_pred_rf = pipe_rf.predict(X)
 
         for i in range(len(y)):
             print("Test Case:", i + 1)
             print("Actual Microhardness(HV):", y[i])
-            print("Predicted Microhardness(HV):", y_pred[i])
+            print("Predicted Microhardness(HV):", y_pred_rf[i])
         print("-----------------------------")
 
         # EVALUATION of MODEL (SCORES)
 
-        rootmean_squared_error = root_mean_squared_error(y, y_pred)
+        rootmean_squared_error = root_mean_squared_error(y, y_pred_rf)
         print("Root Mean Squared Error:", rootmean_squared_error)
-        r2score = r2_score(y, y_pred)
+        r2score = r2_score(y, y_pred_rf)
         print("R2 Score:", r2score)
         print("-----------------------------")
 
@@ -373,73 +371,45 @@ if material == 1:
         while True:
 
             print("\nChooese Laser Power between 150W and 400W")
-            new_laser_power = float(input("New Laser Power(W): "))
+            new_laser_power_rf = float(input("New Laser Power(W): "))
 
-            if 150 <= new_laser_power <=400:
+            if 150 <= new_laser_power_rf <=400:
                 break
 
             print("Laser Power must be between 150W and 400W")
 
-        print("Laser Power(W):", new_laser_power)
+        print("Laser Power(W):", new_laser_power_rf)
 
         while True:
 
             print("Choose Hatch Distance between 50µm and 250µm")
-            new_hatch_distance = float(input("New Hatch Distance(µm): "))
+            new_hatch_distance_rf = float(input("New Hatch Distance(µm): "))
 
-            if 50 <= new_hatch_distance <= 250:
+            if 50 <= new_hatch_distance_rf <= 250:
                 break
 
             print("Hatch distance must be between 50µm and 250µm")
 
-        print("Hatch Distance(µm):", new_hatch_distance)
+        print("Hatch Distance(µm):", new_hatch_distance_rf)
 
         while True:
 
             print("Choose Scan Speed between 0.5m/s and 2.5m/s")
-            new_scan_speed = float(input("New Scan Speed(m/s): "))
+            new_scan_speed_rf = float(input("New Scan Speed(m/s): "))
 
-            if 0.5 <= new_scan_speed <= 2.5:
+            if 0.5 <= new_scan_speed_rf <= 2.5:
                 break
 
             print("Scan Speed must be between 0.5m/s and 2.5m/s")
 
-        print("Scan Speed(m/s):", new_scan_speed)
+        print("Scan Speed(m/s):", new_scan_speed_rf)
         print("-----------------------------")
 
-        new_parameters = [[new_laser_power, new_hatch_distance, new_scan_speed]]
+        new_parameters_rf = [[new_laser_power_rf, new_hatch_distance_rf, new_scan_speed_rf]]
 
-        new_y_pred = pipe_rf.predict(new_parameters)
-        print("Predicted Microhardness(HV):", new_y_pred)
+        new_y_pred_rf = pipe_rf.predict(new_parameters_rf)
+        print("Predicted Microhardness(HV):", new_y_pred_rf)
         print("-----------------------------")
-
-        # VISULIZATION
-
-        # COMPARISION BETWEEN ACTUAL v/s PREDICTED MICROHARDNESS
-        experiment_no = list(range(1, len(y_pred) + 1))
-
-        data_for_visualisation = {
-            "Experiment Number": experiment_no,
-            "Actual Microhardness(HV)": y,
-            "Predicted Microhardness(HV)": y_pred
-        }
-
-        df2 = pd.DataFrame(data_for_visualisation)
-
-        plt.figure(figsize = (10, 6))
-        plt.plot(df2["Experiment Number"], df2["Actual Microhardness(HV)"], color = "black", marker = "o", label = "Actual Microhardness(HV)")
-        plt.plot(df2["Experiment Number"], df2["Predicted Microhardness(HV)"], color = "red", marker = "o", linestyle = "--", label = "Predicted Microhardness(HV)")
-        plt.title("Predicted Microhardness v/s Actual Microhardness(HV)")
-        plt.xlabel("Experiment Number")
-        plt.ylabel("Microhardness(HV)")
-        plt.legend()
-        plt.grid(True)
-
-        # REPRESENTATION of NEW PREDICTED DENSITY
-        new_exp_no = len(experiment_no) + 1
-        plt.scatter(new_exp_no, new_y_pred, color="blue", marker="*", label="New Prediction")
-
-        plt.show()
 
     # ------------------------------------------
     # MODEL 2: ANN
@@ -466,19 +436,19 @@ if material == 1:
 
         # MODEL PREDICTION
 
-        y_pred = pipe_ann.predict(X)
+        y_pred_ann = pipe_ann.predict(X)
 
         for i in range(len(y)):
             print("Test Case:", i + 1)
             print("Actual Microhardness(HV):", y[i])
-            print("Predicted Microhardness(HV):", y_pred[i])
+            print("Predicted Microhardness(HV):", y_pred_ann[i])
         print("-----------------------------")
 
         # EVALUATION of MODEL (SCORES)
 
-        rootmean_squared_error = root_mean_squared_error(y, y_pred)
+        rootmean_squared_error = root_mean_squared_error(y, y_pred_ann)
         print("Root Mean Squared Error:", rootmean_squared_error)
-        r2score = r2_score(y, y_pred)
+        r2score = r2_score(y, y_pred_ann)
         print("R2 Score:", r2score)
         print("-----------------------------")
 
@@ -492,73 +462,45 @@ if material == 1:
         while True:
 
             print("\nChooese Laser Power between 150W and 400W")
-            new_laser_power = float(input("New Laser Power(W): "))
+            new_laser_power_ann = float(input("New Laser Power(W): "))
 
-            if 150 <= new_laser_power <=400:
+            if 150 <= new_laser_power_ann <=400:
                 break
 
             print("Laser Power must be between 150W and 400W")
 
-        print("Laser Power(W):", new_laser_power)
+        print("Laser Power(W):", new_laser_power_ann)
 
         while True:
 
             print("Choose Hatch Distance between 50µm and 250µm")
-            new_hatch_distance = float(input("New Hatch Distance(µm): "))
+            new_hatch_distance_ann = float(input("New Hatch Distance(µm): "))
 
-            if 50 <= new_hatch_distance <= 250:
+            if 50 <= new_hatch_distance_ann <= 250:
                 break
 
             print("Hatch distance must be between 50µm and 250µm")
 
-        print("Hatch Distance(µm):", new_hatch_distance)
+        print("Hatch Distance(µm):", new_hatch_distance_ann)
 
         while True:
 
             print("Choose Scan Speed between 0.5m/s and 2.5m/s")
-            new_scan_speed = float(input("New Scan Speed(m/s): "))
+            new_scan_speed_ann = float(input("New Scan Speed(m/s): "))
 
-            if 0.5 <= new_scan_speed <= 2.5:
+            if 0.5 <= new_scan_speed_ann <= 2.5:
                 break
 
             print("Scan Speed must be between 0.5m/s and 2.5m/s")
 
-        print("Scan Speed(m/s):", new_scan_speed)
+        print("Scan Speed(m/s):", new_scan_speed_ann)
         print("-----------------------------")
 
-        new_parameters = [[new_laser_power, new_hatch_distance, new_scan_speed]]
+        new_parameters_ann = [[new_laser_power_ann, new_hatch_distance_ann, new_scan_speed_ann]]
 
-        new_y_pred = pipe_ann.predict(new_parameters)
-        print("Predicted Microhardness(HV):", new_y_pred)
+        new_y_pred_ann = pipe_ann.predict(new_parameters_ann)
+        print("Predicted Microhardness(HV):", new_y_pred_ann)
         print("-----------------------------")
-
-        # VISULIZATION
-
-        # COMPARISION BETWEEN ACTUAL v/s PREDICTED MICROHARDNESS
-        experiment_no = list(range(1, len(y_pred) + 1))
-
-        data_for_visualisation = {
-            "Experiment Number": experiment_no,
-            "Actual Microhardness(HV)": y,
-            "Predicted Microhardness(HV)": y_pred
-        }
-
-        df2 = pd.DataFrame(data_for_visualisation)
-
-        plt.figure(figsize = (10, 6))
-        plt.plot(df2["Experiment Number"], df2["Actual Microhardness(HV)"], color = "black", marker = "o", label = "Actual Microhardness(HV)")
-        plt.plot(df2["Experiment Number"], df2["Predicted Microhardness(HV)"], color = "green", marker = "o", linestyle = "--", label = "Predicted Microhardness(HV)")
-        plt.title("Predicted Microhardness v/s Actual Microhardness(HV)")
-        plt.xlabel("Experiment Number")
-        plt.ylabel("Microhardness(HV)")
-        plt.legend()
-        plt.grid(True)
-
-        # REPRESENTATION of NEW PREDICTED DENSITY
-        new_exp_no = len(experiment_no) + 1
-        plt.scatter(new_exp_no, new_y_pred, color="blue", marker="*", label="New Prediction")
-
-        plt.show()
 
     # ------------------------------------------
     # MODEL 3: SVM
@@ -577,19 +519,19 @@ if material == 1:
 
         # MODEL PREDICTION
 
-        y_pred = pipe_svm.predict(X)
+        y_pred_svm = pipe_svm.predict(X)
 
         for i in range(len(y)):
             print("Test Case:", i + 1)
             print("Actual Microhardness(HV):", y[i])
-            print("Predicted Microhardness(HV):", y_pred[i])
+            print("Predicted Microhardness(HV):", y_pred_svm[i])
         print("-----------------------------")
 
         # EVALUATION of MODEL (SCORES)
 
-        rootmean_squared_error = root_mean_squared_error(y, y_pred)
+        rootmean_squared_error = root_mean_squared_error(y, y_pred_svm)
         print("Root Mean Squared Error:", rootmean_squared_error)
-        r2score = r2_score(y, y_pred)
+        r2score = r2_score(y, y_pred_svm)
         print("R2 Score:", r2score)
         print("-----------------------------")
 
@@ -603,71 +545,127 @@ if material == 1:
         while True:
 
             print("\nChooese Laser Power between 150W and 400W")
-            new_laser_power = float(input("New Laser Power(W): "))
+            new_laser_power_svm = float(input("New Laser Power(W): "))
 
-            if 150 <= new_laser_power <=400:
+            if 150 <= new_laser_power_svm <=400:
                 break
 
             print("Laser Power must be between 150W and 400W")
 
-        print("Laser Power(W):", new_laser_power)
+        print("Laser Power(W):", new_laser_power_svm)
 
         while True:
 
             print("Choose Hatch Distance between 50µm and 250µm")
-            new_hatch_distance = float(input("New Hatch Distance(µm): "))
+            new_hatch_distance_svm = float(input("New Hatch Distance(µm): "))
 
-            if 50 <= new_hatch_distance <= 250:
+            if 50 <= new_hatch_distance_svm <= 250:
                 break
 
             print("Hatch distance must be between 50µm and 250µm")
 
-        print("Hatch Distance(µm):", new_hatch_distance)
+        print("Hatch Distance(µm):", new_hatch_distance_svm)
 
         while True:
 
             print("Choose Scan Speed between 0.5m/s and 2.5m/s")
-            new_scan_speed = float(input("New Scan Speed(m/s): "))
+            new_scan_speed_svm = float(input("New Scan Speed(m/s): "))
 
-            if 0.5 <= new_scan_speed <= 2.5:
+            if 0.5 <= new_scan_speed_svm <= 2.5:
                 break
 
             print("Scan Speed must be between 0.5m/s and 2.5m/s")
 
-        print("Scan Speed(m/s):", new_scan_speed)
+        print("Scan Speed(m/s):", new_scan_speed_svm)
         print("-----------------------------")
 
-        new_parameters = [[new_laser_power, new_hatch_distance, new_scan_speed]]
+        new_parameters_svm = [[new_laser_power_svm, new_hatch_distance_svm, new_scan_speed_svm]]
 
-        new_y_pred = pipe_svm.predict(new_parameters)
-        print("Predicted Microhardness(HV):", new_y_pred)
+        new_y_pred_svm = pipe_svm.predict(new_parameters_svm)
+        print("Predicted Microhardness(HV):", new_y_pred_svm)
         print("-----------------------------")
 
-        # VISULIZATION
+    # ------------------------------------------
+    # VISUALIZATION: RandomForestRegressor vs ANN vs SVM
+    # ------------------------------------------
+
+        # VISUALIZATION: RandomForestRegressor
 
         # COMPARISION BETWEEN ACTUAL v/s PREDICTED MICROHARDNESS
-        experiment_no = list(range(1, len(y_pred) + 1))
+        experiment_no_rf = list(range(1, len(y_pred_rf) + 1))
 
-        data_for_visualisation = {
-            "Experiment Number": experiment_no,
+        data_for_visualisation_rf = {
+            "Experiment Number": experiment_no_rf,
             "Actual Microhardness(HV)": y,
-            "Predicted Microhardness(HV)": y_pred
+            "Predicted Microhardness(HV)": y_pred_rf
         }
 
-        df2 = pd.DataFrame(data_for_visualisation)
+        df_rf = pd.DataFrame(data_for_visualisation_rf)
 
         plt.figure(figsize = (10, 6))
-        plt.plot(df2["Experiment Number"], df2["Actual Microhardness(HV)"], color = "black", marker = "o", label = "Actual Microhardness(HV)")
-        plt.plot(df2["Experiment Number"], df2["Predicted Microhardness(HV)"], color = "green", marker = "o", linestyle = "--", label = "Predicted Microhardness(HV)")
-        plt.title("Predicted Microhardness v/s Actual Microhardness(HV)")
+        plt.plot(df_rf["Experiment Number"], df_rf["Actual Microhardness(HV)"], color = "black", marker = "o", label = "Actual Microhardness(HV)")
+        plt.plot(df_rf["Experiment Number"], df_rf["Predicted Microhardness(HV)"], color = "red", marker = "o", linestyle = "--", label = "Predicted Microhardness(HV)")
+        plt.title("Predicted Microhardness v/s Actual Microhardness(HV): RandomForestRegressor")
         plt.xlabel("Experiment Number")
         plt.ylabel("Microhardness(HV)")
         plt.legend()
         plt.grid(True)
 
         # REPRESENTATION of NEW PREDICTED DENSITY
-        new_exp_no = len(experiment_no) + 1
-        plt.scatter(new_exp_no, new_y_pred, color="blue", marker="*", label="New Prediction")
+        new_exp_no_rf = len(experiment_no_rf) + 1
+        plt.scatter(new_exp_no_rf, new_y_pred_rf, color = "red", marker = "*", label="New Prediction")
+
+        # VISUALIZATION: ANN
+
+        # COMPARISION BETWEEN ACTUAL v/s PREDICTED MICROHARDNESS
+        experiment_no_ann = list(range(1, len(y_pred_ann) + 1))
+
+        data_for_visualisation_ann = {
+            "Experiment Number": experiment_no_ann,
+            "Actual Microhardness(HV)": y,
+            "Predicted Microhardness(HV)": y_pred_ann
+        }
+
+        df_ann = pd.DataFrame(data_for_visualisation_ann)
+
+        plt.figure(figsize = (10, 6))
+        plt.plot(df_ann["Experiment Number"], df_ann["Actual Microhardness(HV)"], color = "black", marker = "o", label = "Actual Microhardness(HV)")
+        plt.plot(df_ann["Experiment Number"], df_ann["Predicted Microhardness(HV)"], color = "limegreen", marker = "o", linestyle = "--", label = "Predicted Microhardness(HV)")
+        plt.title("Predicted Microhardness v/s Actual Microhardness(HV): ANN")
+        plt.xlabel("Experiment Number")
+        plt.ylabel("Microhardness(HV)")
+        plt.legend()
+        plt.grid(True)
+
+        # REPRESENTATION of NEW PREDICTED DENSITY
+        new_exp_no_ann = len(experiment_no_ann) + 1
+        plt.scatter(new_exp_no_ann, new_y_pred_ann, color="limegreen", marker="*", label="New Prediction")
+
+        # VISUALIZATION: SVM
+
+        # COMPARISION BETWEEN ACTUAL v/s PREDICTED MICROHARDNESS
+        experiment_no_svm = list(range(1, len(y_pred_svm) + 1))
+
+        data_for_visualisation_svm = {
+            "Experiment Number": experiment_no_svm,
+            "Actual Microhardness(HV)": y,
+            "Predicted Microhardness(HV)": y_pred_svm
+        }
+
+        df_svm = pd.DataFrame(data_for_visualisation_svm)
+
+        plt.figure(figsize = (10, 6))
+        plt.plot(df_svm["Experiment Number"], df_svm["Actual Microhardness(HV)"], color = "black", marker = "o", label = "Actual Microhardness(HV)")
+        plt.plot(df_svm["Experiment Number"], df_svm["Predicted Microhardness(HV)"], color = "blue", marker = "o", linestyle = "--", label = "Predicted Microhardness(HV)")
+        plt.title("Predicted Microhardness v/s Actual Microhardness(HV): SVM")
+        plt.xlabel("Experiment Number")
+        plt.ylabel("Microhardness(HV)")
+        plt.legend()
+        plt.grid(True)
+
+        # REPRESENTATION of NEW PREDICTED DENSITY
+        new_exp_no_svm = len(experiment_no_svm) + 1
+        plt.scatter(new_exp_no_svm, new_y_pred_svm, color="blue", marker="*", label="New Prediction")
 
         plt.show()
 
