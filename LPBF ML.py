@@ -363,19 +363,20 @@ if material == 1:
 
         feature_importance = pd.DataFrame({"Feature": feature_names, "Importance": pipe.named_steps["randomforestregressor"].feature_importances_}).sort_values(by="Importance", ascending=False)
 
-        print("\nFeature Importances:")
+        print("Feature Importances:")
         print(feature_importance)
         print("-----------------------------")
 
         # PREDICT NEW PARAMETERS
 
         # FIXED PARAMETERS
+        print("Fixed Parameters: ")
         print("Layer Thickness(µm): 40")
 
         # PREDICTION
         while True:
 
-            print("Chooese Laser Power between 150W and 400W")
+            print("\nChooese Laser Power between 150W and 400W")
             new_laser_power = float(input("New Laser Power(W): "))
 
             if 150 <= new_laser_power <=400:
@@ -413,8 +414,45 @@ if material == 1:
         new_parameters = [[new_laser_power, new_hatch_distance, new_scan_speed]]
 
         new_y_pred = pipe.predict(new_parameters)
-        print("Predicted Density(%):", new_y_pred)
+        print("Predicted Microhardness(HV):", new_y_pred)
         print("-----------------------------")
+
+        # VISULIZATION
+
+        # FEATURE IMPORTANCE
+        plt.figure(figsize=(8, 6))
+        plt.bar(feature_importance["Feature"], feature_importance["Importance"])
+        plt.xlabel("Features", fontsize=10)
+        plt.ylabel("Importance", fontsize=10)
+        plt.title("Feature Importance - Random Forest", fontsize=14)
+        plt.xticks(rotation=20)
+        plt.grid(axis='y')
+
+        # COMPARISION BETWEEN ACTUAL v/s PREDICTED MICROHARDNESS
+        experiment_no = list(range(1, len(y_pred) + 1))
+
+        data_for_visualisation = {
+            "Experiment Number": experiment_no,
+            "Actual Microhardness(HV)": y,
+            "Predicted Microhardness(HV)": y_pred
+        }
+
+        df2 = pd.DataFrame(data_for_visualisation)
+
+        plt.figure(figsize = (7.5, 6))
+        plt.plot(df2["Experiment Number"], df2["Actual Microhardness(HV)"], color = "black", marker = "o", label = "Actual Microhardness(HV)")
+        plt.plot(df2["Experiment Number"], df2["Predicted Microhardness(HV)"], color = "red", marker = "o", linestyle = "--", label = "Predicted Microhardness(HV)")
+        plt.title("Predicted Microhardness v/s Actual Microhardness(HV)")
+        plt.xlabel("Experiment Number")
+        plt.ylabel("Microhardness(HV)")
+        plt.legend()
+        plt.grid(True)
+
+        # REPRESENTATION of NEW PREDICTED DENSITY
+        new_exp_no = len(experiment_no) + 1
+        plt.scatter(new_exp_no, new_y_pred, color="blue", marker="*", label="New Prediction")
+
+        plt.show()
 
 # ------------------------------------------
 # Material 2: Ti6Al4V
