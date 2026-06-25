@@ -319,6 +319,17 @@ if material == 1:
         print(df_AlSi10Mg_microhardness)
         print("-----------------------------")
 
+        # INPUT(X) and OUTPUT(y)
+
+        X = df_AlSi10Mg_microhardness[["Laser Power(W)", "Hatch Distance(µm)", "Scan Speed(m/s)"]].values
+        y = df_AlSi10Mg_microhardness["Microhardness(HV)"].values
+
+        # PIPELINE FORMATION --> Scaling of Input(X) and Defining Model
+
+        pipe = make_pipeline(
+            RandomForestRegressor(n_estimators=200, max_depth = None, random_state = 42)
+        )
+        
 # ------------------------------------------
 # Material 2: Ti6Al4V
 # ------------------------------------------
