@@ -6,14 +6,33 @@ from scipy.interpolate import griddata
 
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import KFold, cross_val_score, train_test_split
+from sklearn.model_selection import KFold, cross_val_score, RepeatedKFold, train_test_split
 
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
+from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C, WhiteKernel
+from sklearn.ensemble import RandomForestRegressor
 
 from sklearn.metrics import root_mean_squared_error, r2_score
 
 # DATA SET
+
+data_AlSi10Mg_Microhardness = {
+    "Laser Power(W)": [200, 200, 200, 200, 200, 200, 200, 200, 200,
+                        275, 275, 275, 275, 275, 275, 275, 275, 275,
+                        350, 350, 350, 350, 350, 350, 350, 350, 350],
+    
+    "Hatch Distance(µm)": [80, 80, 80, 140, 140, 140, 200, 200, 200,
+                            80, 80, 80, 140, 140, 140, 200, 200, 200,
+                            80, 80, 80, 140, 140, 140, 200, 200, 200,],
+
+    "Scan Speed(m/s)": [0.80, 1.40, 2.00, 0.80, 1.40, 2.00, 0.80, 1.40, 2.00,
+                         0.80, 1.40, 2.00, 0.80, 1.40, 2.00, 0.80, 1.40, 2.00,
+                         0.80, 1.40, 2.00, 0.80, 1.40, 2.00, 0.80, 1.40, 2.00],
+    
+    "Microhardness(HV)": [125.33, 115.33, 115.67, 116.33, 105.00, 107.00, 118.67, 108.33, 126.00,
+                          104.23, 109.33, 107.67, 113.67, 108.33, 119.67, 113.33, 115.93, 112.00,
+                          83.37, 101.10, 114.67, 93.40, 110.00, 123.33, 90.57, 102.67, 99.13]
+}
 
 data_AlSi10Mg = {
     "Laser Power(W)": [100, 100, 100, 100, 100, 100, 100, 100, 100,
@@ -101,182 +120,204 @@ material = int(input("Choose Material: "))
 
 if material == 1:
 
-    print("AlSi10Mg")
-    df_AlSi10Mg = pd.DataFrame(data_AlSi10Mg)
-    print(df_AlSi10Mg)
-    print("-----------------------------")
+    print("1: Relative Density(%)")
+    print("2: Microhardness(HV)")
 
-    # INPUT(X) and OUTPUT(y)
+    mechanical_property = int(input("Choose Mechanical Property: "))
 
-    X = df_AlSi10Mg[["Laser Power(W)", "Scan Speed(m/s)"]].values
-    y = df_AlSi10Mg["Relative Density(%)"].values
+    # ------------------------------------------
+    # Property 1: Relative Density(%)
+    # ------------------------------------------
 
-    # PIPELINE FORMATION --> Scaling of Input(X) and Defining Model
+    if mechanical_property == 1:
 
-    kernel = C(1.0, (1e-3, 1e3)) * RBF(length_scale = 1.0)
+        print("AlSi10Mg: Relative Density(%)")
+        df_AlSi10Mg = pd.DataFrame(data_AlSi10Mg)
+        print(df_AlSi10Mg)
+        print("-----------------------------")
 
-    pipe = make_pipeline(
-        StandardScaler(),
-        GaussianProcessRegressor(kernel = kernel, n_restarts_optimizer=10, normalize_y = True, alpha = 0.1)
-    )
+        # INPUT(X) and OUTPUT(y)
 
-    # BEST SPLITTING of X 
+        X = df_AlSi10Mg[["Laser Power(W)", "Scan Speed(m/s)"]].values
+        y = df_AlSi10Mg["Relative Density(%)"].values
 
-    mean_scores = []
+        # PIPELINE FORMATION --> Scaling of Input(X) and Defining Model
 
-    for random_state in range(5):
+        kernel = C(1.0, (1e-3, 1e3)) * RBF(length_scale = 1.0)
 
-        kf = KFold(n_splits = 5, shuffle = True, random_state = random_state)
+        pipe = make_pipeline(
+            StandardScaler(),
+            GaussianProcessRegressor(kernel = kernel, n_restarts_optimizer=10, normalize_y = True, alpha = 0.1)
+        )
 
-        scores = [cross_val_score(pipe, X, y, cv = kf, scoring = "r2")]
-        current_mean = np.mean(scores)
-        print("Random State: ", random_state, " Current Mean: ", current_mean)
-        mean_scores.append(current_mean)
+        # BEST SPLITTING of X 
 
-    max_mean = np.max(mean_scores)
-    max_mean_random_state = np.argmax(mean_scores)
-    print("-----------------------------")
-    print("Max Mean: ", max_mean)
-    print("Max Mean Random State: ", max_mean_random_state)
-    print("-----------------------------")
+        mean_scores = []
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = max_mean_random_state)
+        for random_state in range(5):
 
-    # TRAINING of MODEL
+            kf = KFold(n_splits = 5, shuffle = True, random_state = random_state)
 
-    pipe.fit(X_train, y_train)
+            scores = [cross_val_score(pipe, X, y, cv = kf, scoring = "r2")]
+            current_mean = np.mean(scores)
+            print("Random State: ", random_state, " Current Mean: ", current_mean)
+            mean_scores.append(current_mean)
 
-    gpr = pipe.named_steps["gaussianprocessregressor"]
-    print("Initial Kernel:", gpr.kernel)
-    print("Optimized Kernel:", gpr.kernel_)
-    print("-----------------------------")
+        max_mean = np.max(mean_scores)
+        max_mean_random_state = np.argmax(mean_scores)
+        print("-----------------------------")
+        print("Max Mean: ", max_mean)
+        print("Max Mean Random State: ", max_mean_random_state)
+        print("-----------------------------")
 
-    # MODEL PREDICTION
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = max_mean_random_state)
 
-    y_pred, y_std = pipe.predict(X_test, return_std = True)
+        # TRAINING of MODEL
 
-    for i in range(len(y_test)):
-        print("Test Case:", i + 1)
-        print("Actual Density(%):", y_test[i])
-        print("Predicted Density(%):", y_pred[i])
-        print("Uncertainity(%): ±", y_std[i])
-    print("-----------------------------")
+        pipe.fit(X_train, y_train)
 
-    # EVALUATION of MODEL (SCORES)
+        gpr = pipe.named_steps["gaussianprocessregressor"]
+        print("Initial Kernel:", gpr.kernel)
+        print("Optimized Kernel:", gpr.kernel_)
+        print("-----------------------------")
 
-    rootmean_squared_error = root_mean_squared_error(y_test, y_pred)
-    print("Root Mean Squared Error:", rootmean_squared_error)
-    r2score = r2_score(y_test, y_pred)
-    print("R2 Score:", r2score)
-    print("-----------------------------")
+        # MODEL PREDICTION
 
-    # PREDICT NEW PARAMETERS
+        y_pred, y_std = pipe.predict(X_test, return_std = True)
 
-    # FIXED PARAMETERS
-    print("Hatch Spacing(µm): 100")
-    print("Layer Thickness(µm): 30")
+        for i in range(len(y_test)):
+            print("Test Case:", i + 1)
+            print("Actual Density(%):", y_test[i])
+            print("Predicted Density(%):", y_pred[i])
+            print("Uncertainity(%): ±", y_std[i])
+        print("-----------------------------")
 
-    # PREDICTION
-    while True:
+        # EVALUATION of MODEL (SCORES)
 
-        print("Chooese Laser Power between 10W and 500W")
-        new_laser_power = float(input("New Laser Power(W): "))
+        rootmean_squared_error = root_mean_squared_error(y_test, y_pred)
+        print("Root Mean Squared Error:", rootmean_squared_error)
+        r2score = r2_score(y_test, y_pred)
+        print("R2 Score:", r2score)
+        print("-----------------------------")
 
-        if 10 <= new_laser_power <=500:
-            break
+        # PREDICT NEW PARAMETERS
 
-        print("Laser Power must be between 10W and 500W")
+        # FIXED PARAMETERS
+        print("Hatch Spacing(µm): 100")
+        print("Layer Thickness(µm): 30")
 
-    print("Laser Power(W):", new_laser_power)
+        # PREDICTION
+        while True:
 
-    while True:
+            print("Chooese Laser Power between 10W and 500W")
+            new_laser_power = float(input("New Laser Power(W): "))
 
-        print("Choose Scan Speed between 0.1m/s and 3m/s")
-        new_scan_speed = float(input("New Scan Speed(m/s): "))
+            if 10 <= new_laser_power <=500:
+                break
 
-        if 0.1 <= new_scan_speed <= 3:
-            break
+            print("Laser Power must be between 10W and 500W")
 
-        print("Scan Speed must be between 0.1m/s and 3m/s")
+        print("Laser Power(W):", new_laser_power)
 
-    print("Scan Speed(m/s):", new_scan_speed)
-    print("-----------------------------")
+        while True:
 
-    new_parameters = [[new_laser_power, new_scan_speed]]
+            print("Choose Scan Speed between 0.1m/s and 3m/s")
+            new_scan_speed = float(input("New Scan Speed(m/s): "))
 
-    new_y_pred, new_y_std = pipe.predict(new_parameters, return_std = True)
-    print("Predicted Density(%):", new_y_pred)
-    print("Uncertainity(%): ±", new_y_std)
-    print("-----------------------------")
+            if 0.1 <= new_scan_speed <= 3:
+                break
 
-    # VISULIZATION
+            print("Scan Speed must be between 0.1m/s and 3m/s")
 
-    # INTERPOLATION
-    x = df_AlSi10Mg["Laser Power(W)"]
-    y = df_AlSi10Mg["Scan Speed(m/s)"]
-    z = df_AlSi10Mg["Relative Density(%)"]
+        print("Scan Speed(m/s):", new_scan_speed)
+        print("-----------------------------")
 
-    laser_i = np.linspace(x.min(), x.max(), 100)
-    scan_i = np.linspace(y.min(), y.max(), 100)
-    new_laser, new_scan = np.meshgrid(laser_i, scan_i)
+        new_parameters = [[new_laser_power, new_scan_speed]]
 
-    new_rel_density = griddata((x, y), z, (new_laser, new_scan), method="cubic")
+        new_y_pred, new_y_std = pipe.predict(new_parameters, return_std = True)
+        print("Predicted Density(%):", new_y_pred)
+        print("Uncertainity(%): ±", new_y_std)
+        print("-----------------------------")
 
-    # 3D SURFACE
-    fig_3d = plt.figure(figsize=(12, 6))
-    visual = fig_3d.add_subplot(projection="3d")
+        # VISULIZATION
 
-    surface = visual.plot_surface(new_laser, new_scan, new_rel_density, cmap = "jet", edgecolor = "none")
+        # INTERPOLATION
+        x = df_AlSi10Mg["Laser Power(W)"]
+        y = df_AlSi10Mg["Scan Speed(m/s)"]
+        z = df_AlSi10Mg["Relative Density(%)"]
 
-    visual.scatter(x, y, z, color = "black", s = 10)
-    visual.contour(new_laser, new_scan, new_rel_density, levels = np.arange(92, 100, 0.4), zdir = "z", offset = 90, cmap = "jet")
+        laser_i = np.linspace(x.min(), x.max(), 100)
+        scan_i = np.linspace(y.min(), y.max(), 100)
+        new_laser, new_scan = np.meshgrid(laser_i, scan_i)
 
-    visual.set_xlim(100, 500)
-    visual.set_ylim(0, 2.5)
-    visual.set_title("Relationship between Laser_Power, Scan_Speed, Relative_Density", fontsize = 15)
-    visual.set_xlabel("Laser Power(W)")
-    visual.set_ylabel("Scan Speed(m/s)")
-    visual.set_zlabel("Relative Density(%)")
-    plt.colorbar(surface, label="Relative Density (%)")
+        new_rel_density = griddata((x, y), z, (new_laser, new_scan), method="cubic")
 
-    # CONTOURS
-    fig_countour = plt.figure(figsize=(7.5, 6))
-    contours = plt.contour(new_laser, new_scan, new_rel_density, levels = np.arange(92, 100, 0.4), cmap = "jet")
+        # 3D SURFACE
+        fig_3d = plt.figure(figsize=(12, 6))
+        visual = fig_3d.add_subplot(projection="3d")
 
-    plt.clabel(contours, inline=True, fontsize=10)
-    plt.xlim(100, 400)
-    plt.ylim(0.5, 2.50)
-    plt.xlabel("Laser Power (W)")
-    plt.ylabel("Scan Speed (m/s)")
-    plt.title("Relative Density Contour Plot")
-    plt.colorbar(contours, label="Relative Density (%)")
-    plt.grid(True)
+        surface = visual.plot_surface(new_laser, new_scan, new_rel_density, cmap = "jet", edgecolor = "none")
 
-    # COMPARISION BETWEEN ACTUAL v/s PREDICTED DENSITY
-    experiment_no = list(range(1, len(y_pred) + 1))
+        visual.scatter(x, y, z, color = "black", s = 10)
+        visual.contour(new_laser, new_scan, new_rel_density, levels = np.arange(92, 100, 0.4), zdir = "z", offset = 90, cmap = "jet")
 
-    data_for_visualisation = {
-        "Experiment Number": experiment_no,
-        "Actual Density(%)": y_test,
-        "Predicted Density(%)": y_pred
-    }
+        visual.set_xlim(100, 500)
+        visual.set_ylim(0, 2.5)
+        visual.set_title("Relationship between Laser_Power, Scan_Speed, Relative_Density", fontsize = 15)
+        visual.set_xlabel("Laser Power(W)")
+        visual.set_ylabel("Scan Speed(m/s)")
+        visual.set_zlabel("Relative Density(%)")
+        plt.colorbar(surface, label="Relative Density (%)")
 
-    df2 = pd.DataFrame(data_for_visualisation)
+        # CONTOURS
+        fig_countour = plt.figure(figsize=(7.5, 6))
+        contours = plt.contour(new_laser, new_scan, new_rel_density, levels = np.arange(92, 100, 0.4), cmap = "jet")
 
-    plt.figure(figsize = (7.5, 6))
-    plt.plot(df2["Experiment Number"], df2["Actual Density(%)"], color = "black", marker = "o", label = "Actual Density(%)")
-    plt.plot(df2["Experiment Number"], df2["Predicted Density(%)"], color = "red", marker = "o", linestyle = "--", label = "Predicted Density(%)")
-    plt.title("Predicted Density v/s Actual Density(%)")
-    plt.xlabel("Experiment Number")
-    plt.ylabel("Density(%)")
-    plt.legend()
-    plt.grid(True)
+        plt.clabel(contours, inline=True, fontsize=10)
+        plt.xlim(100, 400)
+        plt.ylim(0.5, 2.50)
+        plt.xlabel("Laser Power (W)")
+        plt.ylabel("Scan Speed (m/s)")
+        plt.title("Relative Density Contour Plot")
+        plt.colorbar(contours, label="Relative Density (%)")
+        plt.grid(True)
 
-    # REPRESENTATION of NEW PREDICTED DENSITY
-    new_exp_no = len(experiment_no) + 1
-    plt.scatter(new_exp_no, new_y_pred, color="blue", marker="*", label="New Prediction")
+        # COMPARISION BETWEEN ACTUAL v/s PREDICTED DENSITY
+        experiment_no = list(range(1, len(y_pred) + 1))
 
-    plt.show()
+        data_for_visualisation = {
+            "Experiment Number": experiment_no,
+            "Actual Density(%)": y_test,
+            "Predicted Density(%)": y_pred
+        }
+
+        df2 = pd.DataFrame(data_for_visualisation)
+
+        plt.figure(figsize = (7.5, 6))
+        plt.plot(df2["Experiment Number"], df2["Actual Density(%)"], color = "black", marker = "o", label = "Actual Density(%)")
+        plt.plot(df2["Experiment Number"], df2["Predicted Density(%)"], color = "red", marker = "o", linestyle = "--", label = "Predicted Density(%)")
+        plt.title("Predicted Density v/s Actual Density(%)")
+        plt.xlabel("Experiment Number")
+        plt.ylabel("Density(%)")
+        plt.legend()
+        plt.grid(True)
+
+        # REPRESENTATION of NEW PREDICTED DENSITY
+        new_exp_no = len(experiment_no) + 1
+        plt.scatter(new_exp_no, new_y_pred, color="blue", marker="*", label="New Prediction")
+
+        plt.show()
+
+    # ------------------------------------------
+    # Property 2: Microhardness(HV)
+    # ------------------------------------------
+
+    if mechanical_property == 2:
+
+        print("AlSi10Mg: Microhardness(HV)")
+        df_AlSi10Mg_microhardness = pd.DataFrame(data_AlSi10Mg_Microhardness)
+        print(df_AlSi10Mg_microhardness)
+        print("-----------------------------")
 
 # ------------------------------------------
 # Material 2: Ti6Al4V
