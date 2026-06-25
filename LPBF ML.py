@@ -324,24 +324,27 @@ if material == 1:
         X = df_AlSi10Mg_microhardness[["Laser Power(W)", "Hatch Distance(µm)", "Scan Speed(m/s)"]].values
         y = df_AlSi10Mg_microhardness["Microhardness(HV)"].values
 
-        # PIPELINE FORMATION --> Scaling of Input(X) and Defining Model
-
-        pipe = make_pipeline(
-            RandomForestRegressor(n_estimators=200, max_depth = None, random_state = 42)
-        )
-
         # BEST SPLITTING of X 
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42)
 
+    # ------------------------------------------
+    # MODEL 1: RandomForestRegressor
+    # ------------------------------------------        
+
+        # PIPELINE FORMATION --> Scaling of Input(X) and Defining Model
+
+        pipe_rf = make_pipeline(
+            RandomForestRegressor(n_estimators=200, max_depth = None, random_state = 42)
+        )
+
         # TRAINING of MODEL
 
-        pipe.fit(X_train, y_train)
-
+        pipe_rf.fit(X_train, y_train)
 
         # MODEL PREDICTION
 
-        y_pred = pipe.predict(X)
+        y_pred = pipe_rf.predict(X)
 
         for i in range(len(y)):
             print("Test Case:", i + 1)
@@ -361,7 +364,7 @@ if material == 1:
 
         feature_names = ["Laser Power(W)", "Hatch Distance(µm)", "Scan Speed(m/s)"]
 
-        feature_importance = pd.DataFrame({"Feature": feature_names, "Importance": pipe.named_steps["randomforestregressor"].feature_importances_}).sort_values(by="Importance", ascending=False)
+        feature_importance = pd.DataFrame({"Feature": feature_names, "Importance": pipe_rf.named_steps["randomforestregressor"].feature_importances_}).sort_values(by="Importance", ascending=False)
 
         print("Feature Importances:")
         print(feature_importance)
@@ -413,7 +416,7 @@ if material == 1:
 
         new_parameters = [[new_laser_power, new_hatch_distance, new_scan_speed]]
 
-        new_y_pred = pipe.predict(new_parameters)
+        new_y_pred = pipe_rf.predict(new_parameters)
         print("Predicted Microhardness(HV):", new_y_pred)
         print("-----------------------------")
 
@@ -453,6 +456,14 @@ if material == 1:
         plt.scatter(new_exp_no, new_y_pred, color="blue", marker="*", label="New Prediction")
 
         plt.show()
+
+    # ------------------------------------------
+    # MODEL 2: ANN
+    # ------------------------------------------
+
+    # ------------------------------------------
+    # MODEL 3: SVM
+    # ------------------------------------------
 
 # ------------------------------------------
 # Material 2: Ti6Al4V
