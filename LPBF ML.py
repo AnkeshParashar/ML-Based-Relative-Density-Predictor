@@ -367,6 +367,55 @@ if material == 1:
         print(feature_importance)
         print("-----------------------------")
 
+        # PREDICT NEW PARAMETERS
+
+        # FIXED PARAMETERS
+        print("Layer Thickness(µm): 40")
+
+        # PREDICTION
+        while True:
+
+            print("Chooese Laser Power between 150W and 400W")
+            new_laser_power = float(input("New Laser Power(W): "))
+
+            if 150 <= new_laser_power <=400:
+                break
+
+            print("Laser Power must be between 150W and 400W")
+
+        print("Laser Power(W):", new_laser_power)
+
+        while True:
+
+            print("Choose Hatch Distance between 50µm and 250µm")
+            new_hatch_distance = float(input("New Hatch Distance(µm): "))
+
+            if 50 <= new_hatch_distance <= 250:
+                break
+
+            print("Hatch distance must be between 50µm and 250µm")
+
+        print("Hatch Distance(µm):", new_hatch_distance)
+
+        while True:
+
+            print("Choose Scan Speed between 0.5m/s and 2.5m/s")
+            new_scan_speed = float(input("New Scan Speed(m/s): "))
+
+            if 0.5 <= new_scan_speed <= 2.5:
+                break
+
+            print("Scan Speed must be between 0.5m/s and 2.5m/s")
+
+        print("Scan Speed(m/s):", new_scan_speed)
+        print("-----------------------------")
+
+        new_parameters = [[new_laser_power, new_hatch_distance, new_scan_speed]]
+
+        new_y_pred = pipe.predict(new_parameters)
+        print("Predicted Density(%):", new_y_pred)
+        print("-----------------------------")
+
 # ------------------------------------------
 # Material 2: Ti6Al4V
 # ------------------------------------------
