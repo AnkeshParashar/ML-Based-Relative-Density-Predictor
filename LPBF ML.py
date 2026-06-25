@@ -357,6 +357,15 @@ if material == 1:
         print("R2 Score:", r2score)
         print("-----------------------------")
 
+        # FEATURE IMPORTANCE
+
+        feature_names = ["Laser Power(W)", "Hatch Distance(µm)", "Scan Speed(m/s)"]
+
+        feature_importance = pd.DataFrame({"Feature": feature_names, "Importance": pipe.named_steps["randomforestregressor"].feature_importances_}).sort_values(by="Importance", ascending=False)
+
+        print("\nFeature Importances:")
+        print(feature_importance)
+        print("-----------------------------")
 
 # ------------------------------------------
 # Material 2: Ti6Al4V
