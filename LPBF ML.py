@@ -339,6 +339,25 @@ if material == 1:
         pipe.fit(X_train, y_train)
 
 
+        # MODEL PREDICTION
+
+        y_pred = pipe.predict(X)
+
+        for i in range(len(y)):
+            print("Test Case:", i + 1)
+            print("Actual Microhardness(HV):", y[i])
+            print("Predicted Microhardness(HV):", y_pred[i])
+        print("-----------------------------")
+
+        # EVALUATION of MODEL (SCORES)
+
+        rootmean_squared_error = root_mean_squared_error(y, y_pred)
+        print("Root Mean Squared Error:", rootmean_squared_error)
+        r2score = r2_score(y, y_pred)
+        print("R2 Score:", r2score)
+        print("-----------------------------")
+
+
 # ------------------------------------------
 # Material 2: Ti6Al4V
 # ------------------------------------------
