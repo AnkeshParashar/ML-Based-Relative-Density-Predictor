@@ -356,8 +356,8 @@ if material == 1:
 
         rootmean_squared_error = root_mean_squared_error(y, y_pred_rf)
         print("Root Mean Squared Error:", rootmean_squared_error)
-        r2score = r2_score(y, y_pred_rf)
-        print("R2 Score:", r2score)
+        r2score_rf = [r2_score(y, y_pred_rf)]
+        print("R2 Score:", r2score_rf)
         print("-----------------------------")
 
         # PREDICT NEW PARAMETERS
@@ -447,8 +447,8 @@ if material == 1:
 
         rootmean_squared_error = root_mean_squared_error(y, y_pred_ann)
         print("Root Mean Squared Error:", rootmean_squared_error)
-        r2score = r2_score(y, y_pred_ann)
-        print("R2 Score:", r2score)
+        r2score_ann = [r2_score(y, y_pred_ann)]
+        print("R2 Score:", r2score_ann)
         print("-----------------------------")
 
         # PREDICT NEW PARAMETERS
@@ -530,8 +530,8 @@ if material == 1:
 
         rootmean_squared_error = root_mean_squared_error(y, y_pred_svm)
         print("Root Mean Squared Error:", rootmean_squared_error)
-        r2score = r2_score(y, y_pred_svm)
-        print("R2 Score:", r2score)
+        r2score_svm = [r2_score(y, y_pred_svm)]
+        print("R2 Score:", r2score_svm)
         print("-----------------------------")
 
         # PREDICT NEW PARAMETERS
@@ -583,6 +583,18 @@ if material == 1:
         new_y_pred_svm = pipe_svm.predict(new_parameters_svm)
         print("Predicted Microhardness(HV):", new_y_pred_svm)
         print("-----------------------------")
+
+        # R2 SCORES
+
+        r2_score_comp = {
+            "RandomForestRegressor": r2score_rf,
+            "ANN": r2score_ann,
+            "SVM": r2score_svm
+        }
+
+        df_r2score = pd.DataFrame(r2_score_comp)
+        print(df_r2score)
+
 
     # ----------------------------------------------------------
     # VISUALIZATION: RandomForestRegressor vs ANN vs SVM
