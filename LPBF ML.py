@@ -593,8 +593,8 @@ if material == 1:
         }
 
         df_r2score = pd.DataFrame(r2_score_comp)
+        print("R2 Score:")
         print(df_r2score)
-
 
     # ----------------------------------------------------------
     # VISUALIZATION: RandomForestRegressor vs ANN vs SVM
@@ -738,20 +738,20 @@ if material == 2:
 
     # MODEL PREDICTION
 
-    y_pred, y_std = pipe.predict(X_test, return_std = True)
+    y_pred, y_std = pipe.predict(X, return_std = True)
 
-    for i in range(len(y_test)):
+    for i in range(len(y)):
         print("Test Case:", i + 1)
-        print("Actual Density(%):", y_test[i])
+        print("Actual Density(%):", y[i])
         print("Predicted Density(%):", y_pred[i])
         print("Uncertainity(%): ±", y_std[i])
         print("-----------------------------")
 
     # EVALUATION of MODEL (SCORES)
 
-    rootmean_squared_error = root_mean_squared_error(y_test, y_pred)
+    rootmean_squared_error = root_mean_squared_error(y, y_pred)
     print("Root Mean Squared Error:", rootmean_squared_error)
-    r2score = r2_score(y_test, y_pred)
+    r2score = r2_score(y, y_pred)
     print("R2 Score:", r2score)
     print("-----------------------------")
 
@@ -763,7 +763,7 @@ if material == 2:
 
     # PREDICTION
     while True:
-        print("Chooese Laser Power between 100W and 500W")
+        print("\nChooese Laser Power between 100W and 500W")
         new_laser_power = float(input("New Laser Power(W): "))
 
         if 100 <= new_laser_power <=500:
@@ -795,15 +795,15 @@ if material == 2:
     # VISULIZATION
 
     # INTERPOLATION
-    x = df_Ti6Al4V["Laser Power(W)"]
-    y = df_Ti6Al4V["Scan Speed(m/s)"]
-    z = df_Ti6Al4V["Relative Density(%)"]
+    laser = df_Ti6Al4V["Laser Power(W)"]
+    scanspeed = df_Ti6Al4V["Scan Speed(m/s)"]
+    reldensity = df_Ti6Al4V["Relative Density(%)"]
 
-    laser_i = np.linspace(x.min(), x.max(), 100)
-    scan_i = np.linspace(y.min(), y.max(), 100)
+    laser_i = np.linspace(laser.min(), laser.max(), 100)
+    scan_i = np.linspace(scanspeed.min(), scanspeed.max(), 100)
     new_laser, new_scan = np.meshgrid(laser_i, scan_i)
 
-    new_rel_density = griddata((x, y), z, (new_laser, new_scan), method="cubic")
+    new_rel_density = griddata((laser, scanspeed), reldensity, (new_laser, new_scan), method="cubic")
 
     # 3D SURFACE
     fig_3d = plt.figure(figsize=(12, 6))
@@ -811,10 +811,11 @@ if material == 2:
 
     surface = visual.plot_surface(new_laser, new_scan, new_rel_density, cmap = "jet", edgecolor = "none")
 
-    visual.scatter(x, y, z, color = "black", s = 10)
+    visual.scatter(laser, scanspeed, reldensity, color = "black", s = 10)
     visual.contour(new_laser, new_scan, new_rel_density, levels = np.arange(92, 100, 0.4), zdir = "z", offset = 90, cmap = "jet")
 
     visual.set_xlim(175, 450)
+
     visual.set_ylim(0.65, 1.3)
     visual.set_title("Relationship between Laser_Power, Scan_Speed, Relative_Density", fontsize = 15)
     visual.set_xlabel("Laser Power(W)")
@@ -840,7 +841,7 @@ if material == 2:
 
     data_for_visualisation = {
         "Experiment Number": experiment_no,
-        "Actual Density(%)": y_test,
+        "Actual Density(%)": y,
         "Predicted Density(%)": y_pred
     }
 
@@ -919,20 +920,20 @@ if material == 3:
 
     # MODEL PREDICTION
 
-    y_pred, y_std = pipe.predict(X_test, return_std = True)
+    y_pred, y_std = pipe.predict(X, return_std = True)
 
-    for i in range(len(y_test)):
+    for i in range(len(y)):
         print("Test Case:", i + 1)
-        print("Actual Density(%):", y_test[i])
+        print("Actual Density(%):", y[i])
         print("Predicted Density(%):", y_pred[i])
         print("Uncertainity(%): ±", y_std[i])
         print("-----------------------------")
 
     # EVALUATION of MODEL (SCORES)
 
-    rootmean_squared_error = root_mean_squared_error(y_test, y_pred)
+    rootmean_squared_error = root_mean_squared_error(y, y_pred)
     print("Root Mean Squared Error:", rootmean_squared_error)
-    r2score = r2_score(y_test, y_pred)
+    r2score = r2_score(y, y_pred)
     print("R2 Score:", r2score)
     print("-----------------------------")
 
@@ -945,7 +946,7 @@ if material == 3:
     # PREDICTION
     while True:
 
-        print("Chooese Laser Power between 100W and 400W")
+        print("\nChooese Laser Power between 100W and 400W")
         new_laser_power = float(input("New Laser Power(W): "))
 
         if 100 <= new_laser_power <=400:
@@ -978,15 +979,15 @@ if material == 3:
     # VISULIZATION
 
     # INTERPOLATION
-    x = df_IN718["Laser Power(W)"]
-    y = df_IN718["Scan Speed(m/s)"]
-    z = df_IN718["Relative Density(%)"]
+    laser = df_IN718["Laser Power(W)"]
+    scanspeed = df_IN718["Scan Speed(m/s)"]
+    reldensity = df_IN718["Relative Density(%)"]
 
-    laser_i = np.linspace(x.min(), x.max(), 100)
-    scan_i = np.linspace(y.min(), y.max(), 100)
+    laser_i = np.linspace(laser.min(), laser.max(), 100)
+    scan_i = np.linspace(scanspeed.min(), scanspeed.max(), 100)
     new_laser, new_scan = np.meshgrid(laser_i, scan_i)
 
-    new_rel_density = griddata((x, y), z, (new_laser, new_scan), method="cubic")
+    new_rel_density = griddata((laser, scanspeed), reldensity, (new_laser, new_scan), method="cubic")
 
     # 3D SURFACE
     fig_3d = plt.figure(figsize=(12, 6))
@@ -994,7 +995,7 @@ if material == 3:
 
     surface = visual.plot_surface(new_laser, new_scan, new_rel_density, cmap = "jet", edgecolor = "none")
 
-    visual.scatter(x, y, z, color = "black", s = 10)
+    visual.scatter(laser, scanspeed, reldensity, color = "black", s = 10)
     visual.contour(new_laser, new_scan, new_rel_density, levels = np.arange(90, 100, 0.4), zdir = "z", offset = 90, cmap = "jet")
 
     visual.set_xlim(100, 400)
@@ -1023,7 +1024,7 @@ if material == 3:
 
     data_for_visualisation = {
         "Experiment Number": experiment_no,
-        "Actual Density(%)": y_test,
+        "Actual Density(%)": y,
         "Predicted Density(%)": y_pred
     }
 
